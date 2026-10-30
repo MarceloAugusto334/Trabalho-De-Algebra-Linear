@@ -1,4 +1,4 @@
-import { Matrix, Vector } from "../types";
+import type { Matrix, Vector } from "@/types";
 
 export const isVector = (param: unknown): param is Vector => {
   if (

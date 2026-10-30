@@ -1,127 +1,35 @@
-"use client";
+import Link from "next/link";
+import { NAVIGATION_ITEMS } from "@/config/navigation";
 
-import { useState, useEffect } from "react";
-import { usePoints } from "../context/PointsContext";
-import dynamic from "next/dynamic";
-import PontoManager from "../components/PontoManager";
-import type { Data, Layout, Config } from "plotly.js";
-import { FigureCallback } from "react-plotly.js";
-
-const Plot = dynamic(() => import("react-plotly.js"), {
-  ssr: false,
-  loading: () => <div>Carregando gráfico...</div>,
-});
-
-interface FigureState {
-  data: Data[];
-  layout: Partial<Layout>;
-  config?: Partial<Config>;
-}
-
-export default function Page() {
-  const { points } = usePoints();
-
-  const [figure, setFigure] = useState<FigureState>({
-    data: [
-      {
-        x: points.map((item) => item[0]),
-        y: points.map((item) => item[1]),
-        type: "scatter",
-        mode: "markers",
-        marker: { color: "red", size: 12 },
-        line: { width: 5 },
-        fill: "toself",
-      },
-    ],
-    layout: {
-      autosize: true,
-      dragmode: "pan",
-      paper_bgcolor: "transparent",
-      plot_bgcolor: "transparent",
-
-      xaxis: {
-        gridcolor: "#222222",
-        zerolinecolor: "#444444",
-        tickfont: { color: "#a1a1aa" },
-        tickformat: ".2~f",
-        hoverformat: ".2~f",
-      },
-      yaxis: {
-        gridcolor: "#222222",
-        zerolinecolor: "#444444",
-        tickfont: { color: "#a1a1aa" },
-        tickformat: ".2~f",
-        hoverformat: ".2~f",
-        scaleanchor: "x",
-        scaleratio: 1,
-      },
-      margin: { l: 50, r: 50, t: 60, b: 50 },
-    },
-    config: {
-      responsive: true,
-      displayModeBar: false,
-      scrollZoom: true,
-    },
-  });
-
-  useEffect(() => {
-    const xCoord: number[] = points.map((point) => point[0]);
-    const yCoord: number[] = points.map((point) => point[1]);
-
-    const maxX: number = Math.max(...xCoord);
-    const minX: number = Math.min(...xCoord);
-    const maxY: number = Math.max(...yCoord);
-    const minY: number = Math.min(...yCoord);
-
-    const PADDING: number = 1.5;
-
-    setFigure((prev: FigureState) => ({
-      ...prev,
-      data: [
-        {
-          ...prev.data[0],
-          x: xCoord,
-          y: yCoord,
-        },
-      ],
-      layout: {
-        ...prev.layout,
-        xaxis: {
-          range: [minX - PADDING, maxX + PADDING],
-          ...prev.layout.xaxis,
-        },
-        yaxis: {
-          range: [minY - PADDING, maxY + PADDING],
-          ...prev.layout.yaxis,
-        },
-      },
-    }));
-  }, [points]);
-
-  const updateFigure = (figure: FigureState) => {
-    setFigure((prev) => ({
-      ...prev,
-      ...figure,
-    }));
-  };
-
+export default function HomePage() {
   return (
-    <div className="h-screen flex w-full">
-      <PontoManager />
+    <div className="flex-1 overflow-y-auto p-8">
+      <div className="max-w-5xl mx-auto flex flex-col gap-8">
+        <header className="flex flex-col gap-2">
+          <h1 className="text-2xl font-bold text-foreground">Programas de Algebra Linear</h1>
+          <p className="text-muted-foreground">
+            Ferramentas para explorar conceitos de Álgebra Linear.
+          </p>
+        </header>
 
-      <main className="flex-1 p-8 w-full h-full bg-background flex items-center justify-center">
-        <div className="w-full h-full max-w-6xl max-h-[800px]">
-          <Plot
-            data={figure.data}
-            layout={figure.layout}
-            config={figure.config}
-            onInitialized={updateFigure as FigureCallback}
-            onUpdate={updateFigure as FigureCallback}
-            useResizeHandler={true}
-            style={{ width: "100%", height: "100%" }}
-          />
-        </div>
-      </main>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {NAVIGATION_ITEMS.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="h-full flex flex-col gap-2 p-5 rounded-md border border-border bg-card shadow-sm hover:border-primary transition-colors"
+              >
+                <h2 className="font-semibold text-card-foreground">
+                  {item.title}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {item.description}
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

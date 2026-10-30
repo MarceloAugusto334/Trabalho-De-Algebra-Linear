@@ -1,5 +1,5 @@
-import { Matrix, Vector } from "../types";
-import { isMatrix } from "./validators";
+import type { Matrix, Vector } from "@/types";
+import { isMatrix } from "@/utils/validators";
 
 
 export const multiplyMatrices = (a: number[][], b: number[][]): number[][] => {

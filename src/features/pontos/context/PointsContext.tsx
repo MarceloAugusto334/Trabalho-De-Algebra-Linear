@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, ReactNode, useState, useContext } from "react";
-import type { Matrix, Vector, Transformation } from "../types";
-import { calculateInverse, transformPointsAroundAnchor } from "../utils/matrix";
+import type { Matrix, Vector } from "@/types";
+import type { Transformation } from "@/features/pontos/types";
+import { calculateInverse, transformPointsAroundAnchor } from "@/utils/matrix";
 
 export const REFLECTION_MATRIX_X: Matrix = [
   [1, 0],

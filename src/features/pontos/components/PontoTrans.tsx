@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, ChangeEvent, SubmitEvent } from "react";
-import { usePoints } from "@/src/context/PointsContext";
-import type { Transformation } from "@/src/types";
+import { usePoints } from "@/features/pontos/context/PointsContext";
+import type { Transformation } from "@/features/pontos/types";
 
 const campo =
   "w-full font-normal h-10 px-3 text-center bg-background border border-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring";
