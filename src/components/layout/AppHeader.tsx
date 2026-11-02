@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAVIGATION_ITEMS } from "@/config/navigation";
+import Image from "next/image";
 
 export default function AppHeader() {
   const pathname = usePathname();
@@ -12,8 +13,8 @@ export default function AppHeader() {
 
   return (
     <header className="h-14 shrink-0 flex items-center gap-8 px-6 border-b border-border bg-background">
-      <Link href="/" className="text-lg font-bold text-foreground">
-        Vetorize
+      <Link href="/" >
+        <Image src="/logo.svg" alt="Logo" width={32} height={32} />
       </Link>
 
       <nav className="flex items-center gap-6">

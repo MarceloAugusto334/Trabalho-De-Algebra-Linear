@@ -17,7 +17,8 @@ export default function HomePage() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="h-full flex flex-col gap-2 p-5 rounded-md border border-border bg-card shadow-sm hover:border-primary transition-colors"
+                className="h-full flex flex-col gap-2 p-5 rounded-md border border-border 
+                bg-card shadow-sm hover:border-primary transition-colors"
               >
                 <h2 className="font-semibold text-card-foreground">
                   {item.title}
