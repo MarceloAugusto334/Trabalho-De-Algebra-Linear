@@ -16,7 +16,7 @@ export const NAVIGATION_ITEMS = [
     description: "Insira triangulos e suas coordenadas e decubra a soma de suas areas",
   },
   {
-    href: "/#",
+    href: "/regressao-linear",
     title: "Trabalho 3",
     description: "Implementações de algritmos de Regrssao linear com visualização da função e do gráfico",
   },
