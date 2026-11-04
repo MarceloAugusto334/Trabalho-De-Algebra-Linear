@@ -1,8 +1,8 @@
 "use client";
 
-import PontoInput from "@/features/pontos/components/PontoInput";
-import PontoList from "@/features/pontos/components/PontoList";
-import PontoTrans from "@/features/pontos/components/PontoTrans";
+import PontoInput from "@/components/pontos/PontoInput";
+import PontoList from "@/components/pontos/PontoList";
+import PontoTrans from "./PontoTrans";
 
 export default function PontoManager() {
 

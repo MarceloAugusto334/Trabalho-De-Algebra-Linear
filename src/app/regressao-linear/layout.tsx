@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { PointsProvider } from "@/features/pontos";
+import PointsProvider from "@/context/PointsContext";
+import RegressaoProvider from "./context/RegressaoContext";
 
 export const metadata: Metadata = {
-  title: "Figuras no Plano Cartesiano",
-  description: "Cadastro de figuras e transformações geométricas no plano.",
+  title: "Regressão Linear",
+  description: "Regressão linear por mínimos quadrados com visualização da reta.",
 };
 
-export default function FigurasNoPlanoCartesianoLayout({ children }: LayoutProps<"/figuras-no-plano-cartesiano">) {
-  return <PointsProvider>{children}</PointsProvider>;
+export default function RegressaoLinearLayout({ children }: LayoutProps<"/regressao-linear">) {
+  return (
+    <PointsProvider>
+      <RegressaoProvider>{children}</RegressaoProvider>
+    </PointsProvider>
+  );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePoints } from "@/features/pontos/context/PointsContext";
+import { usePoints } from "@/context/PointsContext";
 
 export default function PontoList() {
   const { points, removePoints } = usePoints()

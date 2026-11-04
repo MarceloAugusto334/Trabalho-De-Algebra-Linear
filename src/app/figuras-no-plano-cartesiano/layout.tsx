@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { PointsProvider } from "@/features/pontos";
+import PointsProvider from "@/context/PointsContext";
+import TransformacoesProvider from "./context/TransformacoesContext";
 
 export const metadata: Metadata = {
   title: "Figuras no Plano Cartesiano",
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function FigurasNoPlanoCartesianoLayout({ children }: LayoutProps<"/figuras-no-plano-cartesiano">) {
-  return <PointsProvider>{children}</PointsProvider>;
+  return (
+    <PointsProvider>
+      <TransformacoesProvider>{children}</TransformacoesProvider>
+    </PointsProvider>
+  );
 }

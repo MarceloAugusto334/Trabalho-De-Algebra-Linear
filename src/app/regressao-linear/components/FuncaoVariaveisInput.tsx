@@ -1,118 +1,73 @@
 "use client";
 
 import { useState, ChangeEvent, SubmitEvent } from "react";
-import { usePoints } from "@/features/pontos/context/PointsContext";
-import type { Transformation } from "@/features/pontos/types";
+import { useRegressao } from "../context/RegressaoContext";
 
 const campo =
   "w-full font-normal h-10 px-3 text-center bg-background border border-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring";
 
 export default function FuncaoVariaveisInput() {
-  const { points, inversesStack, applyTransformation, undoTransformation } =
-    usePoints();
+  const { reta, variaveis, setVariaveis } = useRegressao();
 
   const [form, setForm] = useState({
-    rotation: false,
-    scale: false,
-    reflection: false,
-    angle: "",
-    sx: "",
-    sy: "",
-    axis: "x",
-    anchorX: "",
-    anchorY: "",
+    dependente: variaveis.dependente,
+    independente: variaveis.independente,
   });
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { id, type, value } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-
-    setForm((prev) => ({
-      ...prev,
-      [id]: type === "checkbox" ? checked : value,
-    }));
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setForm((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const transformation: Transformation = {
-      rotation: form.rotation ? Number(form.angle) : null,
-      scale: form.scale ? { sx: Number(form.sx), sy: Number(form.sy) } : null,
-      reflection: form.reflection ? form.axis : null,
-      anchor:
-        form.anchorX && form.anchorY
-          ? [Number(form.anchorX), Number(form.anchorY)]
-          : null,
-    };
-
-    applyTransformation(transformation);
-    setForm({
-      rotation: false,
-      scale: false,
-      reflection: false,
-      angle: "",
-      sx: "",
-      sy: "",
-      axis: "x",
-      anchorX: "",
-      anchorY: "",
+    setVariaveis({
+      dependente: form.dependente.trim(),
+      independente: form.independente.trim(),
     });
   };
 
-  const allowUndo = inversesStack.length > 0;
-
-  const nothingSelected = (!form.rotation && !form.scale && !form.reflection) || points.length === 0;
+  const nomeDep = variaveis.dependente || "f(x)";
+  const nomeIndep = variaveis.independente || "x";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 p-4   mb-6 border border-border rounded-md"
+      className="flex flex-col gap-4 p-4 mb-6 border border-border rounded-md"
     >
-
       <label className="flex gap-5 font-semibold items-center text-xs">
-        Variavel dependente:
-        <div className="flex gap-2">
-          <input
-            type="text"
-            id="anchorX"
-            placeholder="f(x)"
-            className={campo}
-            onChange={handleChange}
-          />
-        </div>
+        Variável dependente:
+        <input
+          type="text"
+          id="dependente"
+          value={form.dependente}
+          placeholder="f(x)"
+          className={campo}
+          onChange={handleChange}
+        />
       </label>
-      <label className="flex gap-5 font-semibold items-center">
-        Variavel Independente:
-        <div className="flex gap-2">
-          <input
-            type="text"
-            id="anchorX"
-            placeholder="x"
-            className={campo}
-            onChange={handleChange}
-          />
-        </div>
+      <label className="flex gap-5 font-semibold items-center text-xs">
+        Variável independente:
+        <input
+          type="text"
+          id="independente"
+          value={form.independente}
+          placeholder="x"
+          className={campo}
+          onChange={handleChange}
+        />
+      </label>
 
-      </label>
-      <div className="flex gap-4">
-        <button
-          disabled={nothingSelected}
-          className="h-10 px-4 bg-secondary text-secondary-foreground font-medium rounded-md hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Aplicar
-        </button>
-        <button
-          type="button"
-          className=" text-secondary-foreground font-medium rounded-md hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={undoTransformation}
-          disabled={!allowUndo}
-        >
-          Reverter
-        </button>
-      </div>
+      {reta && (
+        <p className="font-mono text-sm text-muted-foreground">
+          {nomeDep} = {Number(reta.a.toFixed(4))}·{nomeIndep}{" "}
+          {reta.b < 0 ? "-" : "+"} {Math.abs(Number(reta.b.toFixed(4)))}
+        </p>
+      )}
+
+      <button className="h-10 px-4 bg-secondary text-secondary-foreground font-medium rounded-md hover:opacity-90 cursor-pointer">
+        Aplicar
+      </button>
     </form>
   );
 }

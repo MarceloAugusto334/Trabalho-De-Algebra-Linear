@@ -2,8 +2,10 @@
 
 import { createContext, ReactNode, useState, useContext } from "react";
 import type { Matrix, Vector } from "@/types";
-import type { Transformation } from "@/features/pontos/types";
+import type { Transformation } from "@/app/figuras-no-plano-cartesiano/types";
+import { usePoints } from "@/context/PointsContext";
 import { calculateInverse, transformPointsAroundAnchor } from "@/utils/matrix";
+import { calculateAnchorPoint } from "@/utils/points";
 
 export const REFLECTION_MATRIX_X: Matrix = [
   [1, 0],
@@ -18,7 +20,7 @@ export const REFLECTION_MATRIX_ORIGIN: Matrix = [
   [0, -1],
 ];
 
-interface PointsProviderProps {
+interface TransformacoesProviderProps {
   children: ReactNode;
 }
 
@@ -27,62 +29,18 @@ interface UndoItem {
   anchor: Vector;
 }
 
-interface PointsContextType {
-  points: Matrix;
+interface TransformacoesContextType {
   inversesStack: UndoItem[];
-  addPoint: (newPoint: Vector, setErr: (param: string) => void) => void;
-  removePoints: (pointIndices: number[]) => void;
   applyTransformation: (transformation: Transformation) => void;
   undoTransformation: () => void;
 }
 
-const PointsContext = createContext<PointsContextType | null>(null);
+const TransformacoesContext = createContext<TransformacoesContextType | null>(
+  null,
+);
 
-const sumPoints = (param: number[]) => {
-  return param.reduce((acc, item) => (acc += item), 0);
-};
-
-const calculateAnchorPoint = (currentPoints: Matrix): Vector => {
-  const xCoord: number[] = currentPoints.map((item) => item[0]);
-  const yCoord: number[] = currentPoints.map((item) => item[1]);
-
-  const xCenter = sumPoints(xCoord) / xCoord.length;
-  const yCenter = sumPoints(yCoord) / yCoord.length;
-
-  return [xCenter, yCenter];
-};
-
-const includesPoint = (currentPoints: Matrix, newPoint: Vector): boolean => {
-  return currentPoints.some((p) => {
-    return p[0] === newPoint[0] && p[1] === newPoint[1];
-  });
-};
-
-const organizePoints = (newPoints: Matrix): Matrix => {
-  const xCoord: number[] = newPoints.map((item) => item[0]);
-  const yCoord: number[] = newPoints.map((item) => item[1]);
-
-  const length = newPoints.length;
-
-  const centerX = sumPoints(xCoord) / length;
-  const centerY = sumPoints(yCoord) / length;
-
-  const pointsWithAngle = newPoints.map((item) => {
-    const deltaX: number = item[0] - centerX;
-    const deltaY: number = item[1] - centerY;
-
-    const angle = Math.atan2(deltaY, deltaX);
-
-    return { vetor: item, angle };
-  });
-
-  const orderedByAngle = pointsWithAngle.sort((a, b) => a.angle - b.angle);
-
-  return orderedByAngle.map((item) => item.vetor);
-};
-
-export function usePoints() {
-  const context = useContext(PointsContext);
+export function useTransformacoes() {
+  const context = useContext(TransformacoesContext);
 
   if (!context) {
     throw new Error("ERROR IN CONTEXT");
@@ -91,29 +49,11 @@ export function usePoints() {
   return context;
 }
 
-export default function PointsProvider({ children }: PointsProviderProps) {
-  const [points, setPoints] = useState<Matrix>([]);
+export default function TransformacoesProvider({
+  children,
+}: TransformacoesProviderProps) {
+  const { points, setPoints } = usePoints();
   const [inversesStack, setInversesStack] = useState<UndoItem[]>([]);
-
-  const addPoint = (newPoint: Vector, setErr: (param: string) => void) => {
-    if (!includesPoint(points, newPoint)) {
-      let newPoints: Matrix = [...points, newPoint];
-
-      if (newPoints.length >= 3) {
-        newPoints = organizePoints(newPoints);
-      }
-
-      setPoints(newPoints);
-    } else {
-      setErr("Ponto já adicionado.");
-    }
-  };
-
-  const removePoints = (pointsIndices: number[]) => {
-    setPoints((prev: Matrix) =>
-      prev.filter((_, index) => !pointsIndices.includes(index)),
-    );
-  };
 
   const applyTransformation = (transformation: Transformation) => {
     if (points.length === 0) {
@@ -197,17 +137,14 @@ export default function PointsProvider({ children }: PointsProviderProps) {
   };
 
   return (
-    <PointsContext.Provider
+    <TransformacoesContext.Provider
       value={{
-        points,
         inversesStack,
-        addPoint,
-        removePoints,
         applyTransformation,
         undoTransformation,
       }}
     >
       {children}
-    </PointsContext.Provider>
+    </TransformacoesContext.Provider>
   );
 }

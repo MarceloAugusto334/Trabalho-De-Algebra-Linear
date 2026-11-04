@@ -1,6 +1,10 @@
 import type { Matrix, Vector } from "@/types";
 import { isMatrix } from "@/utils/validators";
 
+export const transpose = (m: number[][]): number[][] => {
+  return m[0].map((_, j) => m.map((linha) => linha[j]));
+};
+
 
 export const multiplyMatrices = (a: number[][], b: number[][]): number[][] => {
   const m = a.length;

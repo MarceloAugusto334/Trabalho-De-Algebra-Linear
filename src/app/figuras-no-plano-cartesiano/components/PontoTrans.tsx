@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, ChangeEvent, SubmitEvent } from "react";
-import { usePoints } from "@/features/pontos/context/PointsContext";
-import type { Transformation } from "@/features/pontos/types";
+import { usePoints } from "@/context/PointsContext";
+import { useTransformacoes } from "../context/TransformacoesContext";
+import type { Transformation } from "../types";
 
 const campo =
   "w-full font-normal h-10 px-3 text-center bg-background border border-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring";
 
 export default function PontoTrans() {
-  const { points, inversesStack, applyTransformation, undoTransformation } =
-    usePoints();
+  const { points } = usePoints();
+  const { inversesStack, applyTransformation, undoTransformation } =
+    useTransformacoes();
 
   const [form, setForm] = useState({
     rotation: false,

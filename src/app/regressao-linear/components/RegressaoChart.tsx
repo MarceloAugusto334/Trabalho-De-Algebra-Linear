@@ -1,118 +1,101 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-import type { Data, Layout, Config } from "plotly.js";
-import type { FigureCallback } from "react-plotly.js";
-import { usePoints } from "@/features/pontos/context/PointsContext";
-
-const Plot = dynamic(() => import("react-plotly.js"), {
-  ssr: false,
-  loading: () => <div>Carregando gráfico...</div>,
-});
-
-interface FigureState {
-  data: Data[];
-  layout: Partial<Layout>;
-  config?: Partial<Config>;
-}
+import { useMemo } from "react";
+import type { Data, Layout } from "plotly.js";
+import { usePoints } from "@/context/PointsContext";
+import { useRegressao } from "../context/RegressaoContext";
+import { BASE_LAYOUT, BASE_CONFIG } from "@/config/plot";
+import { Plot } from "@/components/plot/Plot";
 
 export default function RegressaoChart() {
   const { points } = usePoints();
+  const { reta, variaveis } = useRegressao();
 
-  const [figure, setFigure] = useState<FigureState>({
-    data: [
+  const data: Data[] = useMemo(() => {
+    const xCoord = points.map((point) => point[0]);
+    const yCoord = points.map((point) => point[1]);
+
+    const traces: Data[] = [
       {
-        x: points.map((item) => item[0]),
-        y: points.map((item) => item[1]),
+        x: xCoord,
+        y: yCoord,
         type: "scatter",
         mode: "markers",
+        name: "Pontos",
         marker: { color: "red", size: 12 },
-        line: { width: 5 },
-        fill: "toself",
       },
-    ],
-    layout: {
-      autosize: true,
-      dragmode: "pan",
-      paper_bgcolor: "transparent",
-      plot_bgcolor: "transparent",
+    ];
 
-      xaxis: {
-        gridcolor: "#222222",
-        zerolinecolor: "#444444",
-        tickfont: { color: "#a1a1aa" },
-        tickformat: ".2~f",
-        hoverformat: ".2~f",
-      },
-      yaxis: {
-        gridcolor: "#222222",
-        zerolinecolor: "#444444",
-        tickfont: { color: "#a1a1aa" },
-        tickformat: ".2~f",
-        hoverformat: ".2~f",
-        scaleanchor: "x",
-        scaleratio: 1,
-      },
-      margin: { l: 50, r: 50, t: 60, b: 50 },
-    },
-    config: {
-      responsive: true,
-      displayModeBar: false,
-      scrollZoom: true,
-    },
-  });
+    if (reta && points.length >= 2) {
+      const minX = Math.min(...xCoord);
+      const maxX = Math.max(...xCoord);
+      const PADDING = 1.5;
+      const lineX = [minX - PADDING, maxX + PADDING];
 
-  useEffect(() => {
-    const xCoord: number[] = points.map((point) => point[0]);
-    const yCoord: number[] = points.map((point) => point[1]);
+      traces.push({
+        x: lineX,
+        y: lineX.map((x) => reta.a * x + reta.b),
+        type: "scatter",
+        mode: "lines",
+        name: "Regressão",
+        line: { color: "#3b82f6", width: 3 },
+      });
+    }
 
-    const maxX: number = Math.max(...xCoord);
-    const minX: number = Math.min(...xCoord);
-    const maxY: number = Math.max(...yCoord);
-    const minY: number = Math.min(...yCoord);
+    return traces;
+  }, [points, reta]);
 
-    const PADDING: number = 1.5;
-
-    setFigure((prev: FigureState) => ({
-      ...prev,
-      data: [
-        {
-          ...prev.data[0],
-          x: xCoord,
-          y: yCoord,
-        },
-      ],
-      layout: {
-        ...prev.layout,
+  const layout: Partial<Layout> = useMemo(() => {
+    if (points.length === 0) {
+      return {
+        ...BASE_LAYOUT,
+        showlegend: false,
         xaxis: {
-          range: [minX - PADDING, maxX + PADDING],
-          ...prev.layout.xaxis,
+          ...BASE_LAYOUT.xaxis,
+          title: { text: variaveis.independente || "x" },
+          range: [-5, 5],
         },
         yaxis: {
-          range: [minY - PADDING, maxY + PADDING],
-          ...prev.layout.yaxis,
+          ...BASE_LAYOUT.yaxis,
+          title: { text: variaveis.dependente || "y" },
+          range: [-5, 5],
         },
-      },
-    }));
-  }, [points]);
+      };
+    }
 
-  const updateFigure = (figure: FigureState) => {
-    setFigure((prev) => ({
-      ...prev,
-      ...figure,
-    }));
-  };
+    const xCoord = points.map((point) => point[0]);
+    const yCoord = points.map((point) => point[1]);
+
+    const maxX = Math.max(...xCoord);
+    const minX = Math.min(...xCoord);
+    const maxY = Math.max(...yCoord);
+    const minY = Math.min(...yCoord);
+
+    const PADDING = 1.5;
+
+    return {
+      ...BASE_LAYOUT,
+      showlegend: false,
+      xaxis: {
+        ...BASE_LAYOUT.xaxis,
+        title: { text: variaveis.independente || "x" },
+        range: [minX - PADDING, maxX + PADDING],
+      },
+      yaxis: {
+        ...BASE_LAYOUT.yaxis,
+        title: { text: variaveis.dependente || "y" },
+        range: [minY - PADDING, maxY + PADDING],
+      },
+    };
+  }, [points, variaveis]);
 
   return (
     <section className="flex-1 p-8 w-full h-full bg-background flex items-center justify-center">
       <div className="w-full h-full max-w-6xl max-h-[800px]">
         <Plot
-          data={figure.data}
-          layout={figure.layout}
-          config={figure.config}
-          onInitialized={updateFigure as FigureCallback}
-          onUpdate={updateFigure as FigureCallback}
+          data={data}
+          layout={layout}
+          config={BASE_CONFIG}
           useResizeHandler={true}
           style={{ width: "100%", height: "100%" }}
         />

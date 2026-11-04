@@ -1,4 +1,5 @@
-import { PontoManager, PointsChart } from "@/features/pontos";
+import PontoManager from "./components/PontoManager";
+import PointsChart from "./components/PointsChart";
 
 export default function PontosPage() {
   return (

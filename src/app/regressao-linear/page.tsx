@@ -1,9 +1,10 @@
-import PontoManager from './components/PontoManager';
-import RegressaoChart from './components/RegressaoChart';
-export default function PontosPage() {
+import RegressaoManager from "./components/RegressaoManager";
+import RegressaoChart from "./components/RegressaoChart";
+
+export default function RegressaoLinearPage() {
   return (
     <div className="flex flex-1 min-w-0 h-full">
-      <PontoManager />
+      <RegressaoManager />
       <RegressaoChart />
     </div>
   );
